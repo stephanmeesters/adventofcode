@@ -33,12 +33,18 @@ fn main() {
                     right = indc; 
                 }
                 if !around_symbol {
-                    around_symbol = scan(ind, i, &symbols);
+                    if i > 0 {
+                        around_symbol |= scan(ind, i - 1, &symbols);
+                    }
+                    around_symbol |= scan(ind, i, &symbols);
+                    if i < lines.len() - 1 {
+                        around_symbol |= scan(ind, i+1, &symbols);
+                    }
                 }
             } else {
                 if left != -1 {
                     if around_symbol {
-                        let part:usize = line[left as usize..right as usize].parse().unwrap();
+                        let part:usize = line[left as usize..(right + 1) as usize].parse().unwrap();
                         part_numbers.push(part);
                     }
                     left = -1;
@@ -49,7 +55,7 @@ fn main() {
         }
     }
 
-    println!("{:?}", part_numbers);
+    println!("{:?} {}", part_numbers, part_numbers.iter().sum::<usize>());
 }
 
 fn scan(ind: usize, row: usize, symbols: &Vec<Vec<usize>>) -> bool {
