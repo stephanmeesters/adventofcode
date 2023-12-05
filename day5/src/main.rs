@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use regex::Regex;
 use std::cell::RefCell;
 use std::{fs, ops::Range};
@@ -73,21 +74,31 @@ fn main() {
         }
     }
 
-    // println!("{:?}", seeds);
-    // println!("{:?}", converters);
-
-    let mut finalNumbers:Vec<usize> = Vec::new();
-    for seed in seeds {
-        let mut nr = seed;
+    let mut min_num = usize::max_value();
+    for seed in seeds.iter() {
+        let mut nr = *seed;
         for converter in converters.iter() {
             nr = converter.transfer(nr);
-            // println!("{}", nr);
         }
-        finalNumbers.push(nr);
+        if nr < min_num {
+            min_num = nr;
+        }
     }
+    println!("{}", min_num); 
 
-    // println!("{:?}", finalNumbers);
-    println!("{}", finalNumbers.iter().min().unwrap());
+    min_num = usize::max_value();
+    for (start, len) in seeds.iter().tuples() {
+        for seed in *start..*start + *len {
+            let mut nr = seed;
+            for converter in converters.iter() {
+                nr = converter.transfer(nr);
+            }
+            if nr < min_num {
+                min_num = nr;
+            }
+        }
+    }
+    println!("{}", min_num); 
 }
 
 // outputs (source range, destination range)
