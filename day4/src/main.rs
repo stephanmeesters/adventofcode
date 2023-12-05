@@ -20,11 +20,11 @@ fn main() {
 
         let winning_numbers: Vec<usize> = re
             .find_iter(winning_part)
-            .filter_map(|d| d.as_str().parse::<usize>().ok())
+            .map(|d| d.as_str().parse::<usize>().unwrap())
             .collect();
         let our_numbers: Vec<usize> = re
             .find_iter(our_part)
-            .filter_map(|d| d.as_str().parse::<usize>().ok())
+            .map(|d| d.as_str().parse::<usize>().unwrap())
             .collect();
 
         let mut num_matches: usize = 0;
