@@ -38,10 +38,8 @@ enum MapType {
 fn main() {
     let contents = fs::read_to_string("input.txt").unwrap();
     let lines: Vec<&str> = contents.lines().collect();
-    let seeds = get_numbers_from_line(lines[0]);
 
     let mut converters: Vec<Map> = Vec::new();
-
     let mut cur_scan_type: MapType = MapType::None;
     for i in 1..lines.len() {
         let line = lines[i];
@@ -73,6 +71,8 @@ fn main() {
             });
         }
     }
+
+    let seeds = get_numbers_from_line(lines[0]);
 
     let mut min_num = usize::max_value();
     for seed in seeds.iter() {
