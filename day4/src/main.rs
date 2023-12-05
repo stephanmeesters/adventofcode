@@ -51,10 +51,7 @@ fn main() {
         total_score += score;
     }
 
-    let mut total_num_cards = 0;
-    for ind in 0..lines.len() {
-        total_num_cards += num_cards[ind];
-    }
+    let total_num_cards: usize = num_cards.iter().sum();
 
     println!("total score: {}", total_score);
     println!("total num cards: {}", total_num_cards);
