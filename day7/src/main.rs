@@ -35,13 +35,17 @@ impl<'a> Hand<'a> {
         let a_values = a.get_sorted_values();
         let b_values = b.get_sorted_values();
         for i in 0..std::cmp::min(a_values.len(), b_values.len()) {
-            let a = a_values[i];
-            let b = b_values[i];
-            let first_cmp = a.0.cmp(&b.0);
-            if first_cmp == std::cmp::Ordering::Equal {
-                return a.1.cmp(&b.1);
-            } else {
+            let aa = a_values[i];
+            let bb = b_values[i];
+            println!("{} {} {} -- {} {} {}", a.orig_str, aa.0, aa.1,b.orig_str, bb.0, bb.1);
+            let first_cmp = aa.0.cmp(&bb.0);
+            if first_cmp != std::cmp::Ordering::Equal {
                 return first_cmp;
+            }
+
+            let snd_cmp = aa.1.cmp(&bb.1);
+            if snd_cmp != std::cmp::Ordering::Equal {
+                return snd_cmp;
             }
         }
         Ordering::Equal
