@@ -117,3 +117,13 @@ fn get_numbers_from_line(line: &str) -> Vec<usize> {
         .map(|d| d.as_str().parse::<usize>().unwrap())
         .collect()
 }
+
+// todo:
+// https://www.reddit.com/r/adventofcode/comments/18b4b0r/2023_day_5_solutions/
+// [LANGUAGE: Kotlin]
+//
+// The key to part 2 is to invert the mappings and perform an iterative binary search. You'll find local minima each iteration. Keep on iterating and decrement the upper bound for the search range until no result can be found anymore.
+//
+// My solution in Kotlin (using the above approach) runs in 15ms: https://github.com/werner77/AdventOfCode/blob/master/src/main/kotlin/com/behindmedia/adventofcode/year2023/day5/Day5.kt
+//
+// I liked the subtle hint for inversion in the puzzle because in the input the destination was in front of the source for the mapping definitions.
