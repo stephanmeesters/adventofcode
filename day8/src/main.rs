@@ -46,9 +46,6 @@ fn run(fname: &str) -> usize {
             }
             nr_jumps += 1;
         }
-        if cur_node.name == "ZZZ" {
-            break;
-        }
     }
 
     println!("nr of jumps: {}", nr_jumps);
