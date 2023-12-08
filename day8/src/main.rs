@@ -37,12 +37,11 @@ fn run(fname: &str) -> usize {
 
     let mut cur_node = nodes.get("AAA").unwrap();
     let mut nr_jumps = 0;
-    loop {
+    while cur_node.name != "ZZZ" {
         for c in commands.chars() {
             if c == 'L' {
                 cur_node = nodes.get(cur_node.left).unwrap();
-            }
-            else if c == 'R' {
+            } else {
                 cur_node = nodes.get(cur_node.right).unwrap();
             }
             nr_jumps += 1;
