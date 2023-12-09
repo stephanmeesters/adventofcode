@@ -1,4 +1,4 @@
-// use num::integer::lcm;
+use num::integer::lcm;
 use regex::Regex;
 use std::{collections::HashMap, fs};
 
@@ -25,7 +25,7 @@ fn run_part(fname: &str, part: Part) -> usize {
 
     let commands = lines[0];
     let mut nodes: HashMap<&str, Node> = HashMap::new();
-    let re = Regex::new(r"^([A-Z]{3})\s=\s\(([A-Z]{3}),\s([A-Z]{3})\)").unwrap();
+    let re = Regex::new(r"^(\w{3})\s=\s\((\w{3}),\s(\w{3})\)").unwrap();
 
     for i in 2..lines.len() {
         let line = lines[i];
@@ -57,12 +57,35 @@ fn run_part(fname: &str, part: Part) -> usize {
 
             println!("nr of jumps: {}", nr_jumps);
             return nr_jumps;
-        },
+        }
         Part::PartTwo => {
-            let keys:Vec<&'a str> = nodes.keys().filter(|k| k.ends_with('Z')).collect();
+            let keys: Vec<&&str> = nodes.keys().filter(|k| k.ends_with('A')).collect();
+            let mut jumps: Vec<usize> = Vec::with_capacity(keys.len());
 
-            
-            return 0;
+            for key in keys {
+                let mut cur_node = nodes.get(key).unwrap();
+                let mut nr_jumps = 0;
+                while !cur_node.name.ends_with("Z") {
+                    for c in commands.chars() {
+                        if c == 'L' {
+                            cur_node = nodes.get(cur_node.left).unwrap();
+                        } else {
+                            cur_node = nodes.get(cur_node.right).unwrap();
+                        }
+                        nr_jumps += 1;
+                    }
+                }
+                jumps.push(nr_jumps);
+            }
+
+            let mut a = jumps[0];
+            for i in 1..jumps.len() {
+                a = lcm(a, jumps[i]);
+            }
+
+            println!("{}", a);
+
+            return a;
         }
     }
 }
