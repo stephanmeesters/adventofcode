@@ -9,11 +9,16 @@ struct Node<'a> {
     right: &'a str,
 }
 
-fn main() {
-    run("input.txt");
+enum Part {
+    PartOne,
+    PartTwo,
 }
 
-fn run(fname: &str) -> usize {
+fn main() {
+    run_part("input.txt", Part::PartTwo);
+}
+
+fn run_part(fname: &str, part: Part) -> usize {
     let contents = fs::read_to_string(fname).unwrap();
     let lines: Vec<&str> = contents.lines().collect();
     assert!(lines.len() > 3);
@@ -35,22 +40,31 @@ fn run(fname: &str) -> usize {
         }
     }
 
-    let mut cur_node = nodes.get("AAA").unwrap();
-    let mut nr_jumps = 0;
-    while cur_node.name != "ZZZ" {
-        for c in commands.chars() {
-            if c == 'L' {
-                cur_node = nodes.get(cur_node.left).unwrap();
-            } else {
-                cur_node = nodes.get(cur_node.right).unwrap();
+    match part {
+        Part::PartOne => {
+            let mut cur_node = nodes.get("AAA").unwrap();
+            let mut nr_jumps = 0;
+            while cur_node.name != "ZZZ" {
+                for c in commands.chars() {
+                    if c == 'L' {
+                        cur_node = nodes.get(cur_node.left).unwrap();
+                    } else {
+                        cur_node = nodes.get(cur_node.right).unwrap();
+                    }
+                    nr_jumps += 1;
+                }
             }
-            nr_jumps += 1;
+
+            println!("nr of jumps: {}", nr_jumps);
+            return nr_jumps;
+        },
+        Part::PartTwo => {
+            let keys:Vec<&'a str> = nodes.keys().filter(|k| k.ends_with('Z')).collect();
+
+            
+            return 0;
         }
     }
-
-    println!("nr of jumps: {}", nr_jumps);
-
-    nr_jumps
 }
 
 #[cfg(test)]
@@ -59,11 +73,16 @@ mod tests {
 
     #[test]
     fn test_pt1() {
-        assert_eq!(run("input2.txt"), 2);
+        assert_eq!(run_part("input2.txt", Part::PartOne), 2);
     }
 
     #[test]
     fn test_pt1_2() {
-        assert_eq!(run("input3.txt"), 6);
+        assert_eq!(run_part("input3.txt", Part::PartOne), 6);
+    }
+
+    #[test]
+    fn test_pt2_1() {
+        assert_eq!(run_part("input4.txt", Part::PartTwo), 6);
     }
 }
