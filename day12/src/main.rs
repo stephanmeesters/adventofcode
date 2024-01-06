@@ -16,13 +16,52 @@ fn main() {
 }
 
 fn calc_permutations(input: &str, right: &[usize]) -> u32 {
-    let tlen = right.iter().sum::<usize>() + right.len() - 1;
+    let total_springs = right.iter().sum::<usize>();
+    let num_dots = right.len() - 1;
+    let tlen = total_springs + num_dots;
     if input.len() < tlen {
         return 0;
     }
-    let str = input.replace("#", "");
-    if str.len() <= 1 {
-        return 1;
+    let num_movable = input.len() - tlen;
+
+    let num_to_add = total_springs - input.chars().filter(|&c| c == '#').count();
+    let num_unknowns = input.chars().filter(|&c| c == '?').count();
+    if num_to_add < num_unknowns {
+        return 0;
     }
-    0
+
+    let dp_table:Vec<Vec<usize>> = vec![vec![]];
+    for i in 0..right.len() {
+        let it = right.iter().skip(i);
+        let right = it.sum() + it.len();
+    }
+
+
+    ??#??    add: 3   unknowns: 4   numdots: 1
+
+
+    ####.
+    ###.#
+    #.###
+    .####
 }
+
+fn check(refstring:&str, offset:usize, width:usize, right:usize, checkall:bool) -> bool {
+    if offset + width + right > refstring.len() {
+        return false;
+    }
+    return refstring.chars().enumerate().take(offset + width).any(|(i, c)| {
+        if i < offset || i > offset + width {
+            return c == '.';
+        }
+        return c == '#';
+    })
+}
+
+
+
+
+
+
+
+
