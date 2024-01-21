@@ -1,7 +1,10 @@
 use std::fs;
 
 fn main() {
-    let result = run("input.txt");
+    let result = run_part1("input.txt");
+    println!("total count: {}", result);
+
+    let result = run_part2("input.txt");
     println!("total count: {}", result);
 }
 
@@ -12,7 +15,7 @@ enum SymmetryLoc {
     Col(usize),
 }
 
-fn run(input: &str) -> usize {
+fn run_part1(input: &str) -> usize {
     let contents = fs::read_to_string(input).unwrap();
 
     let mut matrix: Vec<Vec<bool>> = Vec::new();
@@ -27,7 +30,6 @@ fn run(input: &str) -> usize {
             let mut sym_loc: SymmetryLoc = SymmetryLoc::None;
             for row in 1..(matrix.len()) {
                 let search_width = std::cmp::min(row, matrix.len() - row);
-                println!("{}", search_width);
                 if check_symmetry(&matrix, row, search_width) {
                     sym_loc = SymmetryLoc::Row(row);
                 } 
@@ -40,11 +42,78 @@ fn run(input: &str) -> usize {
                 } 
             }
 
-            println!("{:?}", sym_loc);
-
             if let SymmetryLoc::Row(row) = sym_loc {
                 total += row * 100;
             } else if let SymmetryLoc::Col(col) = sym_loc {
+                total += col;
+            }
+
+            matrix.clear();
+        } else {
+            matrix.push(line.chars().map(|c| c == '.').collect());
+        }
+    }
+
+    total
+}
+
+fn run_part2(input: &str) -> usize {
+    let contents = fs::read_to_string(input).unwrap();
+
+    let mut matrix: Vec<Vec<bool>> = Vec::new();
+    let mut total: usize = 0;
+    let mut it = contents.lines().peekable();
+    while let Some(line) = it.next() {
+        if line.is_empty() || it.peek().is_none() {
+            if matrix.is_empty() {
+                continue;
+            }
+
+            let mut sym_loc: SymmetryLoc = SymmetryLoc::None;
+            let mut sym_loc_smudge: SymmetryLoc = SymmetryLoc::None;
+            for row in 1..(matrix.len()) {
+                let search_width = std::cmp::min(row, matrix.len() - row);
+                if check_symmetry(&matrix, row, search_width) {
+                    sym_loc = SymmetryLoc::Row(row);
+                } 
+            }
+            for row in 1..(matrix.len()) {
+                let search_width = std::cmp::min(row, matrix.len() - row);
+                if check_symmetry_smudge(&matrix, row, search_width){
+                    if let SymmetryLoc::Row(prow) = sym_loc {
+                        if prow != row {
+                            sym_loc_smudge = SymmetryLoc::Row(row);
+                        }
+                    }
+                    else {
+                        sym_loc_smudge = SymmetryLoc::Row(row);
+                    }
+                } 
+            }
+            matrix = transpose(matrix);
+            for col in 1..(matrix.len()) {
+                let search_width = std::cmp::min(col, matrix.len() - col);
+                if check_symmetry(&matrix, col, search_width) {
+                    sym_loc = SymmetryLoc::Col(col);
+                } 
+            }
+            for col in 1..(matrix.len()) {
+                let search_width = std::cmp::min(col, matrix.len() - col);
+                if check_symmetry_smudge(&matrix, col, search_width){
+                    if let SymmetryLoc::Col(pcol) = sym_loc {
+                        if pcol != col {
+                            sym_loc_smudge = SymmetryLoc::Col(col);
+                        }
+                    }
+                    else {
+                        sym_loc_smudge = SymmetryLoc::Col(col);
+                    }
+                } 
+            }
+
+            if let SymmetryLoc::Row(row) = sym_loc_smudge {
+                total += row * 100;
+            } else if let SymmetryLoc::Col(col) = sym_loc_smudge {
                 total += col;
             }
 
@@ -64,6 +133,15 @@ fn check_symmetry(matrix: &Vec<Vec<bool>>, row: usize, size: usize) -> bool {
         .map(|(a, b)| process_cols(a, b))
         .sum();
     result == 0
+}
+
+fn check_symmetry_smudge(matrix: &Vec<Vec<bool>>, row: usize, size: usize) -> bool {
+    let result: usize = matrix[row - size..row]
+        .iter()
+        .zip(matrix[row..row + size].iter().rev())
+        .map(|(a, b)| process_cols(a, b))
+        .sum();
+    result == 1
 }
 
 fn process_cols(a: &Vec<bool>, b: &Vec<bool>) -> usize {
@@ -93,21 +171,26 @@ mod tests {
 
     #[test]
     fn test_pt1() {
-        assert_eq!(run("input2.txt"), 405);
+        assert_eq!(run_part1("input2.txt"), 405);
+    }
+
+    #[test]
+    fn test_pt2() {
+        assert_eq!(run_part2("input2.txt"), 400);
     }
 
     #[test]
     fn test_pt1_2() {
-        assert_eq!(run("input3.txt"), 709);
+        assert_eq!(run_part1("input3.txt"), 709);
     }
 
     #[test]
     fn test_pt1_3() {
-        assert_eq!(run("input4.txt"), 11);
+        assert_eq!(run_part1("input4.txt"), 11);
     }
 
     #[test]
     fn test_pt1_4() {
-        assert_eq!(run("input5.txt"), 3);
+        assert_eq!(run_part1("input5.txt"), 3);
     }
 }
