@@ -1,15 +1,15 @@
 use std::fs;
 
 fn main() {
-    let result = run("input5.txt");
+    let result = run("input.txt");
     println!("total count: {}", result);
 }
 
 #[derive(Debug)]
 enum SymmetryLoc {
     None,
-    Row(usize, usize),
-    Col(usize, usize),
+    Row(usize),
+    Col(usize),
 }
 
 fn run(input: &str) -> usize {
@@ -20,44 +20,31 @@ fn run(input: &str) -> usize {
     let mut it = contents.lines().peekable();
     while let Some(line) = it.next() {
         if line.is_empty() || it.peek().is_none() {
+            if matrix.is_empty() {
+                continue;
+            }
+
             let mut sym_loc: SymmetryLoc = SymmetryLoc::None;
-            let max_width = matrix.len() / 2 + 1;
-            for search_width in 1..max_width {
-                for row in search_width..(matrix.len() - search_width + 1) {
-                    if check_symmetry(&matrix, row, search_width) {
-                        sym_loc = SymmetryLoc::Row(row, search_width);
-                    } else if let SymmetryLoc::Row(prow, _) = sym_loc {
-                        if prow == row {
-                            sym_loc = SymmetryLoc::None;
-                        }
-                    }
-                }
+            for row in 1..(matrix.len()) {
+                let search_width = std::cmp::min(row, matrix.len() - row);
+                println!("{}", search_width);
+                if check_symmetry(&matrix, row, search_width) {
+                    sym_loc = SymmetryLoc::Row(row);
+                } 
             }
             matrix = transpose(matrix);
-            let max_width = matrix.len() / 2 + 1;
-            for search_width in 1..max_width {
-                for col in search_width..(matrix.len() - search_width + 1) {
-                    if check_symmetry(&matrix, col, search_width) {
-                        if let SymmetryLoc::Row(_, rwidth) = sym_loc {
-                            if rwidth < search_width {
-                                sym_loc = SymmetryLoc::Col(col, search_width);
-                            }
-                        } else {
-                            sym_loc = SymmetryLoc::Col(col, search_width);
-                        }
-                    } else if let SymmetryLoc::Col(pcol, _) = sym_loc {
-                        if pcol == col {
-                            sym_loc = SymmetryLoc::None;
-                        }
-                    }
-                }
+            for col in 1..(matrix.len()) {
+                let search_width = std::cmp::min(col, matrix.len() - col);
+                if check_symmetry(&matrix, col, search_width) {
+                    sym_loc = SymmetryLoc::Col(col);
+                } 
             }
 
             println!("{:?}", sym_loc);
 
-            if let SymmetryLoc::Row(row, _) = sym_loc {
+            if let SymmetryLoc::Row(row) = sym_loc {
                 total += row * 100;
-            } else if let SymmetryLoc::Col(col, _) = sym_loc {
+            } else if let SymmetryLoc::Col(col) = sym_loc {
                 total += col;
             }
 
