@@ -1,49 +1,76 @@
 use std::fs;
 
 fn main() {
-    let result = run("input.txt");
+    let result = run("input5.txt");
     println!("total count: {}", result);
+}
+
+#[derive(Debug)]
+enum SymmetryLoc {
+    None,
+    Row(usize, usize),
+    Col(usize, usize),
 }
 
 fn run(input: &str) -> usize {
     let contents = fs::read_to_string(input).unwrap();
 
     let mut matrix: Vec<Vec<bool>> = Vec::new();
-    // let mut total: usize = 0;
+    let mut total: usize = 0;
     let mut it = contents.lines().peekable();
     while let Some(line) = it.next() {
         if line.is_empty() || it.peek().is_none() {
-            let mut count = 0;
-            let search_width = 1;
-
-            for row in search_width..(matrix.len() - search_width) {
-                let bb = check_symmetry(&matrix, row, search_width);
-                if bb {
-                    count +=1 ;
+            let mut sym_loc: SymmetryLoc = SymmetryLoc::None;
+            let max_width = matrix.len() / 2 + 1;
+            for search_width in 1..max_width {
+                for row in search_width..(matrix.len() - search_width + 1) {
+                    if check_symmetry(&matrix, row, search_width) {
+                        sym_loc = SymmetryLoc::Row(row, search_width);
+                    } else if let SymmetryLoc::Row(prow, _) = sym_loc {
+                        if prow == row {
+                            sym_loc = SymmetryLoc::None;
+                        }
+                    }
                 }
-                // println!("{} {}", bb, row);
             }
             matrix = transpose(matrix);
-            for row in search_width..(matrix.len() - search_width) {
-                let bb = check_symmetry(&matrix, row, search_width);
-                if bb {
-                    count +=1 ;
+            let max_width = matrix.len() / 2 + 1;
+            for search_width in 1..max_width {
+                for col in search_width..(matrix.len() - search_width + 1) {
+                    if check_symmetry(&matrix, col, search_width) {
+                        if let SymmetryLoc::Row(_, rwidth) = sym_loc {
+                            if rwidth < search_width {
+                                sym_loc = SymmetryLoc::Col(col, search_width);
+                            }
+                        } else {
+                            sym_loc = SymmetryLoc::Col(col, search_width);
+                        }
+                    } else if let SymmetryLoc::Col(pcol, _) = sym_loc {
+                        if pcol == col {
+                            sym_loc = SymmetryLoc::None;
+                        }
+                    }
                 }
-                // println!("{} {}", bb, row);
             }
-            println!("found {}", count);
+
+            println!("{:?}", sym_loc);
+
+            if let SymmetryLoc::Row(row, _) = sym_loc {
+                total += row * 100;
+            } else if let SymmetryLoc::Col(col, _) = sym_loc {
+                total += col;
+            }
+
             matrix.clear();
         } else {
             matrix.push(line.chars().map(|c| c == '.').collect());
         }
     }
 
-    0
-    // total
+    total
 }
 
 fn check_symmetry(matrix: &Vec<Vec<bool>>, row: usize, size: usize) -> bool {
-    // println!("{}", row + size);
     let result: usize = matrix[row - size..row]
         .iter()
         .zip(matrix[row..row + size].iter().rev())
@@ -53,9 +80,6 @@ fn check_symmetry(matrix: &Vec<Vec<bool>>, row: usize, size: usize) -> bool {
 }
 
 fn process_cols(a: &Vec<bool>, b: &Vec<bool>) -> usize {
-    // println!("{:?}", a);
-    // println!("{:?}", b);
-    // println!("----");
     a.iter()
         .zip(b.iter())
         .map(|(&a, &b)| (a ^ b) as usize)
@@ -74,4 +98,29 @@ fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
                 .collect::<Vec<T>>()
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pt1() {
+        assert_eq!(run("input2.txt"), 405);
+    }
+
+    #[test]
+    fn test_pt1_2() {
+        assert_eq!(run("input3.txt"), 709);
+    }
+
+    #[test]
+    fn test_pt1_3() {
+        assert_eq!(run("input4.txt"), 11);
+    }
+
+    #[test]
+    fn test_pt1_4() {
+        assert_eq!(run("input5.txt"), 3);
+    }
 }
